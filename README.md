@@ -3,13 +3,15 @@
 * install
 
 ```sh
-$ npm install
+$ sudo npm install -g http-server
 ```
 
 * run 
 
+`--cors=Authorization` 해당 옵션은 cors 허용
+
 ```sh
-$ npm run start
+$ http-server --cors=Authorization
 ```
 
 ```sh
