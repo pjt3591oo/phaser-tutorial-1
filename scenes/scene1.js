@@ -9,6 +9,7 @@ class Scene1 extends Phaser.Scene {
   RESTART = 'restart'
 
   constructor() {
+    console.log('scene1 start')
     super("Scene1");
   }
 
