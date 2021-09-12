@@ -18,7 +18,6 @@ const config = {
 const game = new Phaser.Game(config);
 
 function preload() {
-  console.log('preload');
   this.load.setBaseURL('https://raw.githubusercontent.com/pjt3591oo/phaser-tutorial-1/main/');
 
   this.load.image('sky', 'assets/sky.png');
@@ -29,13 +28,25 @@ function preload() {
     'assets/dude.png',
     { frameWidth: 32, frameHeight: 48 }
   );
+
+  console.log(123)
+
+  this.load.scenePlugin({
+    key: 'rexuiplugin',
+    url: 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js',
+    sceneKey: 'rexUI'
+  });
 }
+
+
 let platforms;
 let player;
 let stars;
 let bombs;
 let score = 0;
 let gameOver = false;
+
+const RESTART = 'restart'
 
 function create() {
   makePlatform(this)
@@ -107,7 +118,7 @@ function collectStar(player, star) {
     bomb.setBounce(1);
     bomb.setCollideWorldBounds(true);
     bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
-    
+
     const bomb1 = bombs.create(x, 300, 'bomb');
     bomb1.setBounce(0.3);
     bomb1.setCollideWorldBounds(true);
@@ -122,6 +133,97 @@ function hitBomb(player, bomb) {
   player.setTint(0xee0000);
   player.anims.play('turn');
   gameOver = true;
+
+  showDialog(this);
+}
+
+const showDialog = (self) => {
+  const dialog = self.rexUI.add.dialog({
+    x: 400,
+    y: 300,
+    width: 500,
+
+    background: self.rexUI.add.roundRectangle(0, 0, 100, 100, 20, 0x1565c0),
+
+    title: createLabel(self, 'GameOver').setDraggable(),
+
+    content: createLabel(self, `Score: ${score}`),
+
+    actions: [
+      createLabel(self, RESTART)
+    ],
+
+    space: {
+      left: 20,
+      right: 20,
+      top: -20,
+      bottom: -20,
+
+      title: 25,
+      titleLeft: 30,
+      content: 25,
+      description: 25,
+      descriptionLeft: 20,
+      descriptionRight: 20,
+      choices: 25,
+
+      toolbarItem: 5,
+      choice: 15,
+      action: 15,
+    },
+
+    expand: {
+      title: false,
+    },
+
+    align: {
+      title: 'center',
+      actions: 'right', // 'center'|'left'|'right'
+    },
+
+    click: {
+      mode: 'release'
+    }
+  })
+    .setDraggable('background')   // Draggable-background
+    .layout()
+    // .drawBounds(self.add.graphics(), 0xff0000)
+    .popUp(1000);
+
+  // self.print = self.add.text(0, 0, '');
+  dialog
+    .on('button.click', function (button, groupName, index, pointer, event) {
+      // self.print.text += groupName + '-' + index + ': ' + button.text + '\n';
+      if (button.text === RESTART) {
+        self.scene.start();
+      }
+    }, this)
+    .on('button.over', function (button, groupName, index, pointer, event) {
+      button.getElement('background').setStrokeStyle(1, 0xffffff);
+    })
+    .on('button.out', function (button, groupName, index, pointer, event) {
+      button.getElement('background').setStrokeStyle();
+    });
+}
+
+const createLabel = function (scene, text) {
+  return scene.rexUI.add.label({
+    width: 40, // Minimum width of round-rectangle
+    height: 40, // Minimum height of round-rectangle
+
+    background: scene.rexUI.add.roundRectangle(0, 0, 100, 40, 20, 0x5e92f3),
+
+    text: scene.add.text(0, 0, text, {
+      fontSize: '24px'
+    }),
+
+    space: {
+      left: 10,
+      right: 10,
+      top: 10,
+      bottom: 10
+    }
+  });
 }
 
 function update() {
